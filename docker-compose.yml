@@ -26,6 +26,7 @@ services:
       context: ./server
     volumes:
       - ./server:/server
+      - ./data/llms.csv:/server/data/llms.csv
     ports:
       - "8000:8000"
     depends_on:
