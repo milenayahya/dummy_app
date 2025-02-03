@@ -6,7 +6,7 @@ from motor.motor_asyncio import (
 )
 from pydantic import BaseModel
 from models import LLM
-from routes.llms import add_llm
+from routes.llms import add_llm, retrieve_llms
 
 app = FastAPI()
 llms_collection: AsyncIOMotorCollection = AsyncIOMotorClient(
@@ -52,4 +52,5 @@ class GetLLMsResponseBody(BaseModel):
 )
 async def get_llms() -> GetLLMsResponseBody:
     """Retrieve LLMs from the database."""
-    return ...
+   
+    return await retrieve_llms()
