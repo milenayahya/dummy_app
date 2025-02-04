@@ -1,0 +1,4 @@
+data/
+client/src/components
+client/node_modules
+node_modules/

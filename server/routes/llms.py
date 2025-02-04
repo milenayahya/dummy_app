@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Request, Query, Body
 import pandas as pd
 import os
 from typing import Optional
@@ -28,11 +28,9 @@ def get_random_llm():
 
     return entry.sample(1).to_dict(orient="records")[0]
 
-async def insert_llm(llm):
-    # Validate structure
-    if not all(key in llm for key in ["company", "category", "release_date", "model_name", "num_million_parameters"]):
-        raise HTTPException(status_code=400, detail="Invalid LLM structure")
-
+async def insert_llm(llm: LLM):
+   
+    llm = llm.dict()
     # Check for duplicates
     query = {
         "company": llm["company"],
@@ -53,8 +51,10 @@ async def insert_llm(llm):
 
 
 @router.post("/llm", status_code=status.HTTP_200_OK)
-async def add_llm(mode: str = "random", llm: Optional[LLM] = None):
-
+async def add_llm(mode, llm: Optional[LLM] = None):
+   
+    print("mode: ", mode)
+    print("llm: ", llm)
     if mode == "random":
         
         """
@@ -82,11 +82,14 @@ async def add_llm(mode: str = "random", llm: Optional[LLM] = None):
         print("never entered if")
         raise HTTPException(status_code=400, detail="Failed to find new LLM entry")
     
-    elif mode == "manual" and llm:
+    elif mode == "manual":
+        if not llm:
+            raise HTTPException(status_code=400, detail="Missing LLM object in manual mode")
         
         result = await insert_llm(llm)
+        llm = llm.dict()
         llm["_id"] = str(result.inserted_id)
-        return {"message": "LLM manually added", "entry": llm} 
+        return {"message": "Custom LLM added", "entry": llm} 
 
     else:
         raise HTTPException(status_code=400, detail="Invalid mode or missing LLM object")
@@ -95,4 +98,5 @@ async def retrieve_llms():
     llms = await llms_collection.find().to_list(None)
     if not llms:
         raise HTTPException(status_code=404, detail="No LLMs found in the database")
+    print("LLMs retrieved successfully")
     return {"message": "LLMs retrieved successfully", "llms": llms}

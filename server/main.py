@@ -1,5 +1,5 @@
-from typing import List
-from fastapi import FastAPI, status, Query
+from typing import List, Optional
+from fastapi import FastAPI, status, Query, Body, HTTPException
 from motor.motor_asyncio import (
     AsyncIOMotorClient,
     AsyncIOMotorCollection,
@@ -7,8 +7,18 @@ from motor.motor_asyncio import (
 from pydantic import BaseModel
 from models import LLM
 from routes.llms import add_llm, retrieve_llms
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"], 
+    allow_credentials=True,
+    allow_methods=["*"], 
+    allow_headers=["*"], 
+)
+
 llms_collection: AsyncIOMotorCollection = AsyncIOMotorClient(
     "mongodb://root:example@mongodb:27017"
 )["plino"]["llms"]
@@ -23,23 +33,19 @@ async def read_root():
     "/llm",
     status_code=status.HTTP_201_CREATED,
 )
-async def create_llm(mode: str = Query("random", enum=["random", "manual"])) -> dict:
+async def create_llm(
+    mode: str = Body(...),
+    llm: Optional[LLM] = Body(None)
+) -> dict:
     """
     Read a random LLM from the CSV file and insert it into the MongoDB collection.
     """
     if mode == "manual":
-        # dummy data
-        llm_data = {
-            "company": "AlexNet",
-            "category": "vision",
-            "release_date": "2023-12-06",
-            "model_name": "Gemini 1.5 Pro",
-            "num_million_parameters": 8978,
-        }
-    else:
-        llm_data = None
-        
-    return await add_llm(mode=mode, llm=llm_data)
+        if llm is None:
+            raise HTTPException(status_code=400, detail="LLM data is required for manual mode")
+    
+    return await add_llm(mode,llm)
+
 
 class GetLLMsResponseBody(BaseModel):
     llms: List[LLM]
