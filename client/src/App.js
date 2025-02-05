@@ -20,7 +20,7 @@ import {
   FormLabel,
   FormErrorMessage,
 } from '@chakra-ui/react'
-import { ChevronDownIcon } from '@chakra-ui/icons';
+import { ChevronDownIcon, CheckIcon } from '@chakra-ui/icons';
 import{
   Table,
   TableContainer,
@@ -32,6 +32,7 @@ import{
   Th,
   Td,
 } from "@chakra-ui/react";
+import "./App.css";
 
 function App() {
   const [showDialog, setShowDialog] = useState(false); 
@@ -88,12 +89,12 @@ function App() {
     let filtered = llmList;
     if (companyFilter) {
       filtered = filtered.filter((llm) =>
-        llm.company.toLowerCase().includes(companyFilter.toLowerCase())
+        llm.company.toLowerCase() == (companyFilter.toLowerCase())
       );
     }
     if (categoryFilter) {
       filtered = filtered.filter((llm) =>
-        llm.category.toLowerCase().includes(categoryFilter.toLowerCase())
+        llm.category.toLowerCase() == (categoryFilter.toLowerCase())
       );
     }
     setFilteredData(filtered);
@@ -183,15 +184,17 @@ function App() {
   return (
     <ChakraProvider>
       <Box p={4}>
-        <Menu>
-          <MenuButton as={Button} rightIcon={<ChevronDownIcon />} p={4}>
-            Add LLM
-          </MenuButton>
-          <MenuList>
-            <MenuItem onClick={() => handleRandomLLM()}>Add Random LLM from "llm.csv"</MenuItem>
-            <MenuItem onClick ={() => setShowForm(true)}>Insert Custom LLM</MenuItem>
-          </MenuList>
-        </Menu>
+       <Box maxW="80%" mx="auto" overflowX="auto" display="flex" justifyContent="flex-end">
+          <Menu  placement="bottom-end">
+            <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+              Add LLM
+            </MenuButton>
+            <MenuList>
+              <MenuItem onClick={() => handleRandomLLM()}>Add Random LLM from "llm.csv"</MenuItem>
+              <MenuItem onClick={() => setShowForm(true)}>Add Custom LLM</MenuItem>
+            </MenuList>
+          </Menu>
+        </Box>
         <Box maxW="80%" mx="auto" overflowX="auto">
           <Stack direction="row" spacing={4} mt={4}>
             <Select placeholder="Filter by Company" value={companyFilter} onChange={(e) => setCompanyFilter(e.target.value)} mb={10} pr={2}>
@@ -270,13 +273,15 @@ function App() {
         </Box>
         {showDialog && entry && (
           <AlertDialog isOpen={showDialog} onClose={() => setShowDialog(false)}>
-          <AlertDialogOverlay>
-            <AlertDialogContent>
-              <AlertDialogHeader fontSize="lg" fontWeight="bold">
+          <AlertDialogOverlay className="overlay">
+            <AlertDialogContent className="dialog-content"> 
+              <div className="success-icon">
+                <CheckIcon boxSize={12} color="white" />
+              </div>
+              <AlertDialogHeader className="dialog-header">
                 LLM Added Successfully!
               </AlertDialogHeader>
-
-              <AlertDialogBody>
+              <AlertDialogBody className="dialog-body">
                 <p><strong>Company:</strong> {entry.company}</p>
                 <p><strong>Model Name:</strong> {entry.model_name}</p>
                 <p><strong>Category:</strong> {entry.category}</p>
@@ -284,8 +289,8 @@ function App() {
                 <p><strong>Parameters:</strong> {entry.num_million_parameters}M</p>
               </AlertDialogBody>
 
-              <AlertDialogFooter>
-                <Button onClick={() => setShowDialog(false)}>OK</Button>
+              <AlertDialogFooter className="dialog-footer">
+                <Button className="continue-button" onClick={() => setShowDialog(false)}>CONTINUE &gt;</Button>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialogOverlay>
@@ -296,7 +301,7 @@ function App() {
           <AlertDialog isOpen={showForm} onClose={() => setShowForm(false)}>
             <AlertDialogOverlay>
               <AlertDialogContent>
-                <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                <AlertDialogHeader fontSize="lg" fontWeight="bold" textAlign="center">
                   Add Custom LLM
                 </AlertDialogHeader>
                 <AlertDialogBody>
@@ -335,14 +340,16 @@ function App() {
                     {isSubmitted && !llmData.num_million_parameters && <FormErrorMessage>This field is required.</FormErrorMessage>}
                   </FormControl>
                 </AlertDialogBody>
-                <AlertDialogFooter>
-                  <Button colorScheme="blue" onClick={handleSubmit}>
-                    Submit
-                  </Button>
-                  <Button onClick={handleCancel} ml={3}>
-                    Cancel
-                  </Button>
-                </AlertDialogFooter>
+                <AlertDialogFooter justifyContent="center">
+                  <Stack direction="row" spacing={4} mt={4}>
+                    <Button colorScheme="blue" onClick={handleSubmit}>
+                      Submit
+                    </Button>
+                    <Button onClick={handleCancel} variant="outline">
+                      Cancel
+                    </Button>
+                  </Stack>
+              </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialogOverlay>
           </AlertDialog>
