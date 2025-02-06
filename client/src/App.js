@@ -70,6 +70,8 @@ function App() {
           setFilteredData(llms); // initially set filtered data to all LLMs
           setCompanies([...new Set(llms.map((llm) => llm.company))]);
           setCategories([...new Set(llms.map((llm) => llm.category))]);
+          setCompanyFilter(""); // reset filters
+          setCategoryFilter(""); 
         } else {
           alert("Failed to fetch LLM data");
         }
