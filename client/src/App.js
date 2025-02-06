@@ -245,7 +245,7 @@ function App() {
                   <Tr>
                     <Td colSpan="5">Loading...</Td>
                   </Tr>
-                ) : Array.isArray(filteredData) ? (
+                ) : Array.isArray(filteredData) && filteredData.length > 0 ? (
                   filteredData.map((llm, index) => (
                     <Tr key={index}>
                       <Td>{llm.company}</Td>

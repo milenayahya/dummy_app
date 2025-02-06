@@ -97,6 +97,7 @@ async def add_llm(mode, llm: Optional[LLM] = None):
 async def retrieve_llms():
     llms = await llms_collection.find().to_list(None)
     if not llms:
-        raise HTTPException(status_code=404, detail="No LLMs found in the database")
+        print("No LLMs found in the database")
+        return {"message": "No LLMs found in the database", "llms": []}
     print("LLMs retrieved successfully")
     return {"message": "LLMs retrieved successfully", "llms": llms}
